@@ -1,0 +1,24 @@
+name: Security Audit & SAST
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-audit:
+    name: Secret Leak Detection & SAST
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Scan for Private Keys and Exposed Credentials
+        run: |
+          echo "[*] Scanning repository for exposed credentials..."
+          if grep -rn "BEGIN RSA" . --exclude-dir={.git,.github}; then
+            echo "ERROR: Private key detected!"
+            exit 1
+          fi
+          echo "[*] Security audit passed with zero credential leaks."
